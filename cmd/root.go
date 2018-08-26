@@ -32,31 +32,38 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("Starting listeners...")
 
+		servers := viper.GetStringSlice("servers")
+		timeout := viper.GetDuration("timeout")
+		updateDelay := viper.GetDuration("update_delay")
+		recoverDelay := viper.GetDuration("recover_delay")
+
 		var wg sync.WaitGroup
-		wg.Add(2)
+		wg.Add(2 * len(servers))
 
-		go func() {
-			defer wg.Done()
+		for _, addr := range servers {
+			go func() {
+				defer wg.Done()
 
-			for {
-				err := listeners.RunRemoteListener()
-				if err != nil {
-					log.Error().Err(err).Msg("Remote listener exited")
+				for {
+					err := listeners.RunRemoteListener(addr, timeout)
+					if err != nil {
+						log.Error().Err(err).Msg("Remote listener exited")
+					}
+					time.Sleep(recoverDelay)
 				}
-				time.Sleep(viper.GetDuration("recover_period"))
-			}
-		}()
-		go func() {
-			defer wg.Done()
+			}()
+			go func() {
+				defer wg.Done()
 
-			for {
-				err := listeners.RunLocalListener()
-				if err != nil {
-					log.Error().Err(err).Msg("Remote listener exited")
+				for {
+					err := listeners.RunLocalListener(addr, timeout, updateDelay)
+					if err != nil {
+						log.Error().Err(err).Msg("Local listener exited")
+					}
+					time.Sleep(recoverDelay)
 				}
-				time.Sleep(viper.GetDuration("recover_period"))
-			}
-		}()
+			}()
+		}
 
 		wg.Wait()
 	},
@@ -85,11 +92,11 @@ func init() {
 	)
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 
-	rootCmd.PersistentFlags().StringP(
-		"addr", "a", "localhost:8000",
-		"RClip server address",
+	rootCmd.PersistentFlags().StringSliceP(
+		"servers", "s", []string{"localhost:9889"},
+		"RClip servers",
 	)
-	viper.BindPFlag("address", rootCmd.PersistentFlags().Lookup("addr"))
+	viper.BindPFlag("servers", rootCmd.PersistentFlags().Lookup("servers"))
 
 	rootCmd.PersistentFlags().DurationP(
 		"timeout", "t", 5*time.Second,
@@ -98,16 +105,16 @@ func init() {
 	viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
 
 	rootCmd.PersistentFlags().DurationP(
-		"update-period", "u", 2*time.Second,
-		"Duration to wait between checks of local clipboard",
+		"update-delay", "u", 2*time.Second,
+		"Delay between checks of local clipboard",
 	)
-	viper.BindPFlag("update_period", rootCmd.PersistentFlags().Lookup("update-period"))
+	viper.BindPFlag("update_delay", rootCmd.PersistentFlags().Lookup("update-delay"))
 
 	rootCmd.PersistentFlags().DurationP(
-		"recover-period", "r", 5*time.Second,
-		"Duration to wait before recover connection after failure",
+		"recover-delay", "r", 5*time.Second,
+		"Delay before recover connection after failure",
 	)
-	viper.BindPFlag("recover_period", rootCmd.PersistentFlags().Lookup("recover-period"))
+	viper.BindPFlag("recover_delay", rootCmd.PersistentFlags().Lookup("recover-delay"))
 }
 
 // initConfig reads in config file

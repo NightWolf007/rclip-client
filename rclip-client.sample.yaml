@@ -1,4 +1,5 @@
-address: 'localhost:8000'
+servers:
+  - localhost:9889
 timeout: 5s
 update_period: 2s
 recover_period: 5s

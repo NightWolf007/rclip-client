@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+      <string>com.rclip.RClipClient</string>
+    <key>ProgramArguments</key>
+      <array>
+        <string>/usr/local/bin/rclip-client</string>
+        <string>-c</string>
+        <string>/etc/rclip/rclip-client.yaml</string>
+    </array>
+    <key>KeepAlive</key>
+      <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+      </dict>
+    <key>RunAtLoad</key>
+      <true/>
+    <key>StandardErrorPath</key>
+      <string>/tmp/com.rclip.RClipClient.err</string>
+    <key>StandardOutPath</key>
+      <string>/tmp/com.rclip.RClipClient.out</string>
+  </dict>
+</plist>

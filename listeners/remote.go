@@ -2,19 +2,19 @@ package listeners
 
 import (
 	"context"
+	"time"
 
 	"github.com/NightWolf007/rclip/pb"
 	"github.com/atotto/clipboard"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )
 
-func RunRemoteListener() error {
+func RunRemoteListener(addr string, timeout time.Duration) error {
 	conn, err := grpc.Dial(
-		viper.GetString("address"),
+		addr,
 		grpc.WithInsecure(),
-		grpc.WithTimeout(viper.GetDuration("timeout")),
+		grpc.WithTimeout(timeout),
 	)
 	if err != nil {
 		return err
