@@ -31,7 +31,7 @@ func RunLocalListener(addr string, timeout time.Duration, updateDelay time.Durat
 		}
 
 		if data != prevData {
-			log.Debug().Str("message", data).Msgf("New message from local clipboard")
+			log.Debug().Str("data", data).Msg("New message from local clipboard")
 
 			_, err = client.Push(context.Background(), &pb.PushRequest{Data: []byte(data)})
 			if err != nil {

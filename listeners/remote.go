@@ -33,7 +33,7 @@ func RunRemoteListener(addr string, timeout time.Duration) error {
 			return err
 		}
 
-		log.Debug().Bytes("message", clip.Data).Msgf("New message from RClip")
+		log.Debug().Bytes("data", clip.Data).Msg("New message from RClip")
 
 		err = clipboard.WriteAll(string(clip.Data))
 		if err != nil {

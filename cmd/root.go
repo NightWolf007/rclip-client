@@ -41,7 +41,7 @@ var rootCmd = &cobra.Command{
 		wg.Add(2 * len(servers))
 
 		for _, addr := range servers {
-			go func() {
+			go func(addr string) {
 				defer wg.Done()
 
 				for {
@@ -51,8 +51,8 @@ var rootCmd = &cobra.Command{
 					}
 					time.Sleep(recoverDelay)
 				}
-			}()
-			go func() {
+			}(addr)
+			go func(addr string) {
 				defer wg.Done()
 
 				for {
@@ -62,7 +62,7 @@ var rootCmd = &cobra.Command{
 					}
 					time.Sleep(recoverDelay)
 				}
-			}()
+			}(addr)
 		}
 
 		wg.Wait()
